@@ -1,11 +1,14 @@
-from fastapi import FastAPI, File, UploadFile
+import json
+import io
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 from transformers import pipeline
-import json
+import PyPDF2
+from docx import Document as DocxDocument
 
 # Zero-shot classification model
 classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
@@ -61,11 +64,30 @@ async def health_check():
 
 @app.post("/upload")
 async def upload_document(file: UploadFile = File(...)):
-    if not file.filename.endswith(".txt"):
-        return {"message": "Only .txt files are allowed"}
+    content_str = ""
+    filename = file.filename
 
-    content = await file.read()
-    content_str = content.decode("utf-8")
+    if filename.endswith(".txt"):
+        content = await file.read()
+        content_str = content.decode("utf-8")
+    elif filename.endswith(".pdf"):
+        try:
+            # Read PDF content
+            pdf_reader = PyPDF2.PdfReader(io.BytesIO(await file.read()))
+            for page_num in range(len(pdf_reader.pages)):
+                content_str += pdf_reader.pages[page_num].extract_text() or ""
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Error processing PDF: {e}")
+    elif filename.endswith(".docx"):
+        try:
+            # Read DOCX content
+            doc = DocxDocument(io.BytesIO(await file.read()))
+            for paragraph in doc.paragraphs:
+                content_str += paragraph.text + "\n"
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Error processing DOCX: {e}")
+    else:
+        raise HTTPException(status_code=400, detail="Only .txt, .pdf, and .docx files are allowed")
 
     # Perform classification
     classification_results = classifier(content_str, candidate_labels)
@@ -77,7 +99,7 @@ async def upload_document(file: UploadFile = File(...)):
     db = SessionLocal()
     try:
         db_document = Document(
-            filename=file.filename,
+            filename=filename,
             content=content_str,
             predicted_category=predicted_category,
             confidence_scores=json.dumps(confidence_scores)

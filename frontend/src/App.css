@@ -36,3 +36,49 @@
     transform: rotate(360deg);
   }
 }
+
+.document-card {
+  background-color: #3a3f47;
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease-in-out;
+}
+
+.document-card:hover {
+  transform: translateY(-5px);
+}
+
+.document-card h3 {
+  color: #61dafb;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.document-card p {
+  margin-bottom: 5px;
+  color: #c0c0c0;
+}
+
+.document-card ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 5px;
+}
+
+.document-card ul li {
+  background-color: #2e3238;
+  margin-bottom: 3px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.document-card ul li strong {
+  color: #61dafb;
+  margin-right: 5px;
+}
