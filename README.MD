@@ -47,3 +47,34 @@ To run this application, you need to start both the backend and the frontend ser
 ### 3. Verify Connection
 
 Once both servers are running, open your web browser and navigate to `http://localhost:3000`. Open the browser's developer console (F12) and check the console logs. You should see `{"status": "ok"}` printed, indicating that the frontend is successfully communicating with the backend's `/health` endpoint.
+
+## How to Run Tests
+
+### 1. Backend Tests (FastAPI)
+
+1.  **Navigate to the backend directory:**
+    ```bash
+    cd backend
+    ```
+
+2.  **Activate your virtual environment:**
+    *   On Windows: `.\venv\Scripts\activate`
+    *   On macOS/Linux: `source venv/bin/activate`
+
+3.  **Run pytest:**
+    ```bash
+    pytest
+    ```
+
+### 2. Frontend Tests (React)
+
+1.  **Navigate to the frontend directory:**
+    ```bash
+    cd frontend
+    ```
+
+2.  **Run the tests:**
+    ```bash
+    npm test
+    ```
+    This will open an interactive test runner in your terminal. You can press `q` to quit.
