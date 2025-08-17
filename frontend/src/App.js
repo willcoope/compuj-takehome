@@ -4,8 +4,8 @@ import './App.css';
 function App() {
   const [message, setMessage] = useState('');
   const [documents, setDocuments] = useState([]);
-  const [openDocumentId, setOpenDocumentId] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [openDocumentId, setOpenDocumentId] = useState(null); // State to manage opened document details
+  const [isLoading, setIsLoading] = useState(false); // New loading state
   const fileInputRef = useRef(null);
 
   const fetchDocuments = async () => {
@@ -13,6 +13,7 @@ function App() {
       const response = await fetch('http://localhost:8000/documents');
       if (response.ok) {
         const data = await response.json();
+        // Sort documents by upload_time in descending order (most recent first)
         const sortedDocuments = data.sort((a, b) => new Date(b.upload_time) - new Date(a.upload_time));
         setDocuments(sortedDocuments);
       } else {
@@ -23,13 +24,14 @@ function App() {
     }
   };
 
+  // Toggle function for document details
   const toggleDocumentDetails = (id) => {
     setOpenDocumentId(openDocumentId === id ? null : id);
   };
 
   useEffect(() => {
     // Health check
-    const url = 'http://8000/health'; // Changed to 8000 since localhost is implied
+    const url = 'http://localhost:8000/health';
     console.log(`Attempting to fetch from: ${url}`);
     fetch(url)
       .then(response => {
@@ -46,12 +48,13 @@ function App() {
       })
       .catch(error => console.error('Fetch error:', error));
 
+    // Fetch documents on mount
     fetchDocuments();
   }, []);
 
   const handleFile = async (file) => {
-    setMessage('');
-    setIsLoading(true);
+    setMessage(''); // Clear previous messages
+    setIsLoading(true); // Set loading to true when upload starts
 
     const allowedExtensions = ['.txt', '.pdf', '.docx'];
     const fileExtension = '.' + file.name.split('.').pop();
@@ -68,7 +71,7 @@ function App() {
         const data = await response.json();
         if (response.ok) {
           setMessage(`Success: ${data.message} - ${data.filename}. Category: ${data.predicted_category}`);
-          fetchDocuments();
+          fetchDocuments(); // Refresh the list of documents
         } else {
           setMessage(`Error: ${data.message || response.statusText}`);
         }
@@ -76,11 +79,11 @@ function App() {
         console.error('Upload error:', error);
         setMessage('Failed to upload file.');
       } finally {
-        setIsLoading(false);
+        setIsLoading(false); // Set loading to false when upload finishes (success or error)
       }
     } else {
       setMessage('Only .txt, .pdf, and .docx files are allowed.');
-      setIsLoading(false);
+      setIsLoading(false); // Set loading to false if file type is not allowed
     }
   };
 
@@ -126,7 +129,7 @@ function App() {
             minHeight: '100px',
             margin: '20px auto',
             color: '#ccc',
-            cursor: 'pointer'
+            cursor: 'pointer' // Add cursor pointer to indicate it's clickable
           }}
         >
           Drag and drop your .txt, .pdf, or .docx file here, or click to upload
@@ -135,8 +138,8 @@ function App() {
           type="file"
           ref={fileInputRef}
           onChange={handleFileInputChange}
-          style={{ display: 'none' }}
-          accept=".txt,.pdf,.docx"
+          style={{ display: 'none' }} // Hide the input
+          accept=".txt,.pdf,.docx" // Specify accepted file types
         />
         {message && (
             <div 
@@ -169,6 +172,7 @@ function App() {
               >
                 <h3>{doc.filename}</h3>
                 <p><strong>Category:</strong> {doc.predicted_category}</p>
+                <p><strong>Upload Time:</strong> {new Date(doc.upload_time).toLocaleString()}</p>
                 {(openDocumentId !== doc.id) && (
                     <p className="click-for-details">Click for more details</p>
                 )}
@@ -177,7 +181,7 @@ function App() {
                     <p><strong>Confidence Scores:</strong></p>
                     <div className="confidence-scores-container">
                       {Object.entries(doc.confidence_scores)
-                        .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
+                        .sort(([, scoreA], [, scoreB]) => scoreB - scoreA) // Sort by score descending
                         .map(([label, score]) => (
                           <div key={label} className="confidence-item">
                             <span className="confidence-label">{label}:</span>

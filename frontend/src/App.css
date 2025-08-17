@@ -54,7 +54,7 @@
 .document-card h3 {
   margin-top: 0;
   margin-bottom: 10px;
-  color: #00bcd4;
+  color: #00bcd4; /* A vibrant color for the filename */
 }
 
 .document-card p {
@@ -91,7 +91,7 @@
 .confidence-scores-container {
   margin-top: 10px;
   padding: 10px;
-  background-color: #2a2a2a;
+  background-color: #2a2a2a; /* Slightly darker background for the scores */
   border-radius: 5px;
 }
 
@@ -119,13 +119,13 @@
   display: flex;
   align-items: center;
   position: relative;
-  overflow: hidden;
+  overflow: hidden; /* Ensure content inside doesn't overflow rounded corners */
 }
 
 .confidence-bar {
-  background-color: #4CAF50;
+  background-color: #4CAF50; /* Green color for the bar */
   height: 100%;
-  border-radius: 5px 0 0 5px;
+  border-radius: 5px 0 0 5px; /* Rounded only on the left for the bar */
   transition: width 0.5s ease-in-out;
 }
 
@@ -140,9 +140,9 @@
 
 .loading-message {
   font-size: 1.2em;
-  color: #61dafb;
+  color: #61dafb; /* A color that stands out */
   margin-top: 15px;
-  animation: pulse 1.5s infinite alternate;
+  animation: pulse 1.5s infinite alternate; /* Simple pulsing animation */
 }
 
 @keyframes pulse {
@@ -152,7 +152,7 @@
 
 .click-for-details {
   font-size: 0.85em;
-  color: #888;
+  color: #888; /* A subtle color */
   margin-top: 10px;
   text-align: center;
   cursor: pointer;
@@ -160,16 +160,16 @@
 }
 
 .click-for-details:hover {
-  color: #61dafb;
+  color: #61dafb; /* Highlight on hover */
 }
 
 .low-confidence {
-  border: 2px solid #ffc107;
-  box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+  border: 2px solid #ffc107; /* Orange border for low confidence */
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.5); /* Orange glow */
 }
 
 .low-confidence h3 {
-  color: #ffc107;
+  color: #ffc107; /* Orange color for filename */
 }
 
 .alert {
