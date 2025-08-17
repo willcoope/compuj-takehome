@@ -4,8 +4,8 @@ import './App.css';
 function App() {
   const [message, setMessage] = useState('');
   const [documents, setDocuments] = useState([]);
-  const [openDocumentId, setOpenDocumentId] = useState(null); // State to manage opened document details
-  const [isLoading, setIsLoading] = useState(false); // New loading state
+  const [openDocumentId, setOpenDocumentId] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef(null);
 
   const fetchDocuments = async () => {
@@ -13,7 +13,6 @@ function App() {
       const response = await fetch('http://localhost:8000/documents');
       if (response.ok) {
         const data = await response.json();
-        // Sort documents by upload_time in descending order (most recent first)
         const sortedDocuments = data.sort((a, b) => new Date(b.upload_time) - new Date(a.upload_time));
         setDocuments(sortedDocuments);
       } else {
@@ -24,14 +23,13 @@ function App() {
     }
   };
 
-  // Toggle function for document details
   const toggleDocumentDetails = (id) => {
     setOpenDocumentId(openDocumentId === id ? null : id);
   };
 
   useEffect(() => {
     // Health check
-    const url = 'http://localhost:8000/health';
+    const url = 'http://8000/health'; // Changed to 8000 since localhost is implied
     console.log(`Attempting to fetch from: ${url}`);
     fetch(url)
       .then(response => {
@@ -48,13 +46,12 @@ function App() {
       })
       .catch(error => console.error('Fetch error:', error));
 
-    // Fetch documents on mount
     fetchDocuments();
   }, []);
 
   const handleFile = async (file) => {
-    setMessage(''); // Clear previous messages
-    setIsLoading(true); // Set loading to true when upload starts
+    setMessage('');
+    setIsLoading(true);
 
     const allowedExtensions = ['.txt', '.pdf', '.docx'];
     const fileExtension = '.' + file.name.split('.').pop();
@@ -71,7 +68,7 @@ function App() {
         const data = await response.json();
         if (response.ok) {
           setMessage(`Success: ${data.message} - ${data.filename}. Category: ${data.predicted_category}`);
-          fetchDocuments(); // Refresh the list of documents
+          fetchDocuments();
         } else {
           setMessage(`Error: ${data.message || response.statusText}`);
         }
@@ -79,11 +76,11 @@ function App() {
         console.error('Upload error:', error);
         setMessage('Failed to upload file.');
       } finally {
-        setIsLoading(false); // Set loading to false when upload finishes (success or error)
+        setIsLoading(false);
       }
     } else {
       setMessage('Only .txt, .pdf, and .docx files are allowed.');
-      setIsLoading(false); // Set loading to false if file type is not allowed
+      setIsLoading(false);
     }
   };
 
@@ -129,7 +126,7 @@ function App() {
             minHeight: '100px',
             margin: '20px auto',
             color: '#ccc',
-            cursor: 'pointer' // Add cursor pointer to indicate it's clickable
+            cursor: 'pointer'
           }}
         >
           Drag and drop your .txt, .pdf, or .docx file here, or click to upload
@@ -138,10 +135,25 @@ function App() {
           type="file"
           ref={fileInputRef}
           onChange={handleFileInputChange}
-          style={{ display: 'none' }} // Hide the input
-          accept=".txt,.pdf,.docx" // Specify accepted file types
+          style={{ display: 'none' }}
+          accept=".txt,.pdf,.docx"
         />
-        {message && <p style={{ color: message.startsWith('Error') ? 'red' : 'green' }}>{message}</p>}
+        {message && (
+            <div 
+                className={message.startsWith('Error') ? 'alert alert-danger' : 'alert alert-success'}
+                role="alert"
+            >
+                {message}
+                <button 
+                    type="button" 
+                    className="close-alert-btn" 
+                    onClick={() => setMessage('')}
+                    aria-label="Close"
+                >
+                    &times;
+                </button>
+            </div>
+        )}
         {isLoading && <p className="loading-message">Classifying document, please wait...</p>}
 
         <h2>Uploaded Documents</h2>
@@ -150,10 +162,13 @@ function App() {
         ) : (
           <div style={{ width: '80%', margin: '20px auto', textAlign: 'left' }}>
             {documents.map((doc) => (
-              <div key={doc.id} className="document-card" onClick={() => toggleDocumentDetails(doc.id)}>
+              <div 
+                key={doc.id} 
+                className={`document-card ${doc.predicted_category === 'Other' ? 'low-confidence' : ''}`}
+                onClick={() => toggleDocumentDetails(doc.id)}
+              >
                 <h3>{doc.filename}</h3>
                 <p><strong>Category:</strong> {doc.predicted_category}</p>
-                <p><strong>Upload Time:</strong> {new Date(doc.upload_time).toLocaleString()}</p>
                 {(openDocumentId !== doc.id) && (
                     <p className="click-for-details">Click for more details</p>
                 )}
@@ -162,7 +177,7 @@ function App() {
                     <p><strong>Confidence Scores:</strong></p>
                     <div className="confidence-scores-container">
                       {Object.entries(doc.confidence_scores)
-                        .sort(([, scoreA], [, scoreB]) => scoreB - scoreA) // Sort by score descending
+                        .sort(([, scoreA], [, scoreB]) => scoreB - scoreA)
                         .map(([label, score]) => (
                           <div key={label} className="confidence-item">
                             <span className="confidence-label">{label}:</span>

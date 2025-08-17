@@ -54,7 +54,7 @@
 .document-card h3 {
   margin-top: 0;
   margin-bottom: 10px;
-  color: #00bcd4; /* A vibrant color for the filename */
+  color: #00bcd4;
 }
 
 .document-card p {
@@ -91,7 +91,7 @@
 .confidence-scores-container {
   margin-top: 10px;
   padding: 10px;
-  background-color: #2a2a2a; /* Slightly darker background for the scores */
+  background-color: #2a2a2a;
   border-radius: 5px;
 }
 
@@ -119,13 +119,13 @@
   display: flex;
   align-items: center;
   position: relative;
-  overflow: hidden; /* Ensure content inside doesn't overflow rounded corners */
+  overflow: hidden;
 }
 
 .confidence-bar {
-  background-color: #4CAF50; /* Green color for the bar */
+  background-color: #4CAF50;
   height: 100%;
-  border-radius: 5px 0 0 5px; /* Rounded only on the left for the bar */
+  border-radius: 5px 0 0 5px;
   transition: width 0.5s ease-in-out;
 }
 
@@ -140,9 +140,9 @@
 
 .loading-message {
   font-size: 1.2em;
-  color: #61dafb; /* A color that stands out */
+  color: #61dafb;
   margin-top: 15px;
-  animation: pulse 1.5s infinite alternate; /* Simple pulsing animation */
+  animation: pulse 1.5s infinite alternate;
 }
 
 @keyframes pulse {
@@ -152,7 +152,7 @@
 
 .click-for-details {
   font-size: 0.85em;
-  color: #888; /* A subtle color */
+  color: #888;
   margin-top: 10px;
   text-align: center;
   cursor: pointer;
@@ -160,5 +160,54 @@
 }
 
 .click-for-details:hover {
-  color: #61dafb; /* Highlight on hover */
+  color: #61dafb;
+}
+
+.low-confidence {
+  border: 2px solid #ffc107;
+  box-shadow: 0 0 8px rgba(255, 193, 7, 0.5);
+}
+
+.low-confidence h3 {
+  color: #ffc107;
+}
+
+.alert {
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  position: relative;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alert-success {
+  color: #155724;
+  background-color: #d4edda;
+  border-color: #c3e6cb;
+}
+
+.alert-danger {
+  color: #721c24;
+  background-color: #f8d7da;
+  border-color: #f5c6cb;
+}
+
+.close-alert-btn {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  font-weight: bold;
+  line-height: 1;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.close-alert-btn:hover {
+  opacity: 1;
 }
