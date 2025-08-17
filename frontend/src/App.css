@@ -38,28 +38,33 @@
 }
 
 .document-card {
-  background-color: #3a3f47;
+  background-color: #333;
   border: 1px solid #444;
   border-radius: 8px;
   padding: 15px;
-  margin-bottom: 15px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease-in-out;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .document-card:hover {
-  transform: translateY(-5px);
+  background-color: #444;
 }
 
 .document-card h3 {
-  color: #61dafb;
   margin-top: 0;
   margin-bottom: 10px;
+  color: #00bcd4; /* A vibrant color for the filename */
 }
 
 .document-card p {
   margin-bottom: 5px;
-  color: #c0c0c0;
+}
+
+.document-details-expanded {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px dashed #555;
 }
 
 .document-card ul {
@@ -81,4 +86,79 @@
 .document-card ul li strong {
   color: #61dafb;
   margin-right: 5px;
+}
+
+.confidence-scores-container {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #2a2a2a; /* Slightly darker background for the scores */
+  border-radius: 5px;
+}
+
+.confidence-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.9em;
+}
+
+.confidence-label {
+  flex: 0 0 200px; /* Increased width for labels */
+  text-align: right;
+  margin-right: 20px; /* Slightly increased margin for separation */
+  font-weight: bold;
+  color: #aaa;
+  white-space: normal; /* Allow normal wrapping if needed, but increased width should help */
+}
+
+.confidence-bar-container {
+  flex: 1;
+  background-color: #555;
+  border-radius: 5px;
+  height: 25px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  overflow: hidden; /* Ensure content inside doesn't overflow rounded corners */
+}
+
+.confidence-bar {
+  background-color: #4CAF50; /* Green color for the bar */
+  height: 100%;
+  border-radius: 5px 0 0 5px; /* Rounded only on the left for the bar */
+  transition: width 0.5s ease-in-out;
+}
+
+.confidence-percentage {
+  position: absolute;
+  right: 8px;
+  color: white;
+  font-size: 0.85em;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+.loading-message {
+  font-size: 1.2em;
+  color: #61dafb; /* A color that stands out */
+  margin-top: 15px;
+  animation: pulse 1.5s infinite alternate; /* Simple pulsing animation */
+}
+
+@keyframes pulse {
+  from { opacity: 1; }
+  to { opacity: 0.5; }
+}
+
+.click-for-details {
+  font-size: 0.85em;
+  color: #888; /* A subtle color */
+  margin-top: 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.click-for-details:hover {
+  color: #61dafb; /* Highlight on hover */
 }

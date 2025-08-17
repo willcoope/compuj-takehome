@@ -1,6 +1,6 @@
 import json
 import io
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
@@ -9,6 +9,9 @@ from datetime import datetime
 from transformers import pipeline
 import PyPDF2
 from docx import Document as DocxDocument
+from pydantic import BaseModel, RootModel
+from typing import Dict, Any, List
+from sqlalchemy.orm import Session # Import Session for type hinting
 
 # Zero-shot classification model
 classifier = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
@@ -40,8 +43,18 @@ class Document(Base):
     predicted_category = Column(String, nullable=True)
     confidence_scores = Column(String, nullable=True) # Stored as JSON string
 
-# Create database tables
-Base.metadata.create_all(bind=engine)
+# Dependency to get DB session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+# Create database tables only if the script is run directly
+# This prevents table creation during tests when main.py is imported
+if __name__ == "__main__":
+    Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -62,8 +75,26 @@ app.add_middleware(
 async def health_check():
     return {"status": "ok"}
 
-@app.post("/upload")
-async def upload_document(file: UploadFile = File(...)):
+# Pydantic Models
+class ConfidenceScores(RootModel[Dict[str, float]]):
+    pass
+
+class DocumentResponse(BaseModel):
+    id: int
+    filename: str
+    upload_time: datetime
+    predicted_category: str
+    confidence_scores: ConfidenceScores
+
+class UploadResponse(BaseModel):
+    message: str
+    filename: str
+    upload_time: datetime
+    predicted_category: str
+    confidence_scores: ConfidenceScores
+
+@app.post("/upload", response_model=UploadResponse)
+async def upload_document(file: UploadFile = File(...), db: Session = Depends(get_db)):
     content_str = ""
     filename = file.filename
 
@@ -96,7 +127,6 @@ async def upload_document(file: UploadFile = File(...)):
         label: score for label, score in zip(classification_results['labels'], classification_results['scores'])
     }
 
-    db = SessionLocal()
     try:
         db_document = Document(
             filename=filename,
@@ -117,9 +147,8 @@ async def upload_document(file: UploadFile = File(...)):
     finally:
         db.close()
 
-@app.get("/documents")
-async def get_documents():
-    db = SessionLocal()
+@app.get("/documents", response_model=List[DocumentResponse])
+async def get_documents(db: Session = Depends(get_db)):
     try:
         documents = db.query(Document).all()
         return [

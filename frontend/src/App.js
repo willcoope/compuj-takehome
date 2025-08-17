@@ -4,6 +4,8 @@ import './App.css';
 function App() {
   const [message, setMessage] = useState('');
   const [documents, setDocuments] = useState([]);
+  const [openDocumentId, setOpenDocumentId] = useState(null); // State to manage opened document details
+  const [isLoading, setIsLoading] = useState(false); // New loading state
   const fileInputRef = useRef(null);
 
   const fetchDocuments = async () => {
@@ -11,13 +13,20 @@ function App() {
       const response = await fetch('http://localhost:8000/documents');
       if (response.ok) {
         const data = await response.json();
-        setDocuments(data);
+        // Sort documents by upload_time in descending order (most recent first)
+        const sortedDocuments = data.sort((a, b) => new Date(b.upload_time) - new Date(a.upload_time));
+        setDocuments(sortedDocuments);
       } else {
         console.error('Failed to fetch documents:', response.statusText);
       }
     } catch (error) {
       console.error('Error fetching documents:', error);
     }
+  };
+
+  // Toggle function for document details
+  const toggleDocumentDetails = (id) => {
+    setOpenDocumentId(openDocumentId === id ? null : id);
   };
 
   useEffect(() => {
@@ -45,6 +54,7 @@ function App() {
 
   const handleFile = async (file) => {
     setMessage(''); // Clear previous messages
+    setIsLoading(true); // Set loading to true when upload starts
 
     const allowedExtensions = ['.txt', '.pdf', '.docx'];
     const fileExtension = '.' + file.name.split('.').pop();
@@ -68,9 +78,12 @@ function App() {
       } catch (error) {
         console.error('Upload error:', error);
         setMessage('Failed to upload file.');
+      } finally {
+        setIsLoading(false); // Set loading to false when upload finishes (success or error)
       }
     } else {
       setMessage('Only .txt, .pdf, and .docx files are allowed.');
+      setIsLoading(false); // Set loading to false if file type is not allowed
     }
   };
 
@@ -129,6 +142,7 @@ function App() {
           accept=".txt,.pdf,.docx" // Specify accepted file types
         />
         {message && <p style={{ color: message.startsWith('Error') ? 'red' : 'green' }}>{message}</p>}
+        {isLoading && <p className="loading-message">Classifying document, please wait...</p>}
 
         <h2>Uploaded Documents</h2>
         {documents.length === 0 ? (
@@ -136,16 +150,34 @@ function App() {
         ) : (
           <div style={{ width: '80%', margin: '20px auto', textAlign: 'left' }}>
             {documents.map((doc) => (
-              <div key={doc.id} className="document-card">
+              <div key={doc.id} className="document-card" onClick={() => toggleDocumentDetails(doc.id)}>
                 <h3>{doc.filename}</h3>
                 <p><strong>Category:</strong> {doc.predicted_category}</p>
                 <p><strong>Upload Time:</strong> {new Date(doc.upload_time).toLocaleString()}</p>
-                <p><strong>Confidence Scores:</strong></p>
-                <ul>
-                  {Object.entries(doc.confidence_scores).map(([label, score]) => (
-                    <li key={label}><span>{label}:</span> <span>{(score * 100).toFixed(2)}%</span></li>
-                  ))}
-                </ul>
+                {(openDocumentId !== doc.id) && (
+                    <p className="click-for-details">Click for more details</p>
+                )}
+                {openDocumentId === doc.id && (
+                  <div className="document-details-expanded">
+                    <p><strong>Confidence Scores:</strong></p>
+                    <div className="confidence-scores-container">
+                      {Object.entries(doc.confidence_scores)
+                        .sort(([, scoreA], [, scoreB]) => scoreB - scoreA) // Sort by score descending
+                        .map(([label, score]) => (
+                          <div key={label} className="confidence-item">
+                            <span className="confidence-label">{label}:</span>
+                            <div className="confidence-bar-container">
+                              <div
+                                className="confidence-bar"
+                                style={{ width: `${(score * 100).toFixed(2)}%` }}
+                              ></div>
+                              <span className="confidence-percentage">{(score * 100).toFixed(2)}%</span>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
